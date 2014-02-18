@@ -1,3 +1,5 @@
+import os
+
 __author__ = 'deepakss'
 
 from Queue import Queue
@@ -31,6 +33,7 @@ class DB(object):
 				return None
 		except Exception, e:
 			print e
+			return None
 
 	def isEmpty(self):
 		return self.permanentQ.empty()
@@ -47,6 +50,11 @@ class DB(object):
 		else:
 			return 0
 
-	def stats(self):
+	def collectStats(self):
 		logger.info(self.permanentQ.qsize())
+		file = 'links.txt'
+		with open(file,"w") as f:
+			while not self.permanentQ.empty():
+				f.write(str(self.permanentQ.get())+"\n")
+		logger.info("Links Dumped @ {0}".format(os.path.abspath(file)))
 

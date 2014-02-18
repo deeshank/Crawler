@@ -26,14 +26,14 @@ class HtmlParser(object):
 		self.html = ''
 
 	def get_html(self):
+		"""Gets HTML Source for the given url"""
 		if not self.db.isFull():
 			try:
-				##raw_html = urllib2.urlopen(self.url, timeout=5).read()
 				request = HeadRequest(self.url)
 				response = urllib2.urlopen(request)
 				response_headers = response.info()
 				content_type = response_headers['content-type']
-				if 'text/html' in str(content_type).lower().strip():
+				if 'text/html' in str(content_type).lower().strip():    #Filters only text/html content-type urls
 					raw_html = urllib2.urlopen(self.url, timeout=5).read()
 					self.html = BeautifulSoup(raw_html)
 					#log.info("Parsed : {0}".format(self.url))
@@ -42,6 +42,7 @@ class HtmlParser(object):
 					self.html = ''
 			except Exception, e:
 				log.info("Unable to Parse the URL {0} => {1}".format(self.url, e))
+				self.html=''
 		else:
 			pass
 
@@ -84,6 +85,8 @@ class HtmlParser(object):
 							break
 		return
 
+
+#### WITHOUT THREADS
 # def main():
 # 	db=DB(1000)
 # 	HtmlParser('http://docs.python.org/2/library/queue.html').parse_links()
@@ -91,7 +94,7 @@ class HtmlParser(object):
 # 		url=db.nextURL()
 # 		HtmlParser(url).parse_links()
 # 	log.info("Done.")
-#   db.stats()
+#   db.collectStats()
 
 
 
@@ -111,8 +114,8 @@ def runner(n=10):
 				log.info("DB IS FULL!")
 				break
 			continue
-	log.info("JOINING the threads...")
-	[x.join() for x in pool]
+	#log.info("JOINING the threads...")
+	[x.join() for x in pool]  # waits till all the threads are done
 	pool = []
 	return
 
@@ -124,11 +127,10 @@ def crawl(url, n=100, t=10):
 	if db.isEmpty():
 		log.error("No Links Found!")
 		sys.exit(1)
-	#raw_input("Start Threads")
-	while not db.isFull():
+	while not db.isFull():  # spawn t threads in batches
 		log.info("Starting {0} threads parallely".format(t))
 		runner(t)
-	db.stats()
+	db.collectStats()
 
 
 def main():
@@ -144,5 +146,3 @@ def main():
 	start_time = time.time()
 	crawl(url, n, th)
 	log.info("Processed in {0} seconds".format(time.time() - start_time))
-
-
