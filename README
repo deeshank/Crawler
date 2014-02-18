@@ -1,0 +1,12 @@
+SIMPLE CRAWLER - PROTOTYPE
+
+INSTALL -
+
+python setup.py install
+
+USAGE -
+
+$> crawl -h
+
+$> crawl -u <url> [-t <no of threads to spawn> -n <no of urls to collects>]
+
